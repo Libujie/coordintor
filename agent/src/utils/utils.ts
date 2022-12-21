@@ -1,7 +1,7 @@
-import { HookManager } from "./hooker/HookManager";
-import { NativeBridgeWrapper } from "./nativebridge/wrapper";
+import { HookManager } from "../hooker/HookManager";
+import { NativeBridgeWrapper } from "../nativebridge/wrapper";
 
-var gHookRoot = new HookManager();
+var gHookRoot = HookManager.getInstance();
 var gNativBridge = new NativeBridgeWrapper();
 
 export {gHookRoot, gNativBridge };

@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
-import { Hook } from "./hooker/hook";
-import { env_, path_, classLoader_, errorMsg_, caller_ } from "./index";
-import { gHookRoot, gNativBridge } from "./utils";
+import { Hook } from "../hooker/hook";
+import { env_, path_, classLoader_, errorMsg_, caller_ } from "../index";
+import { gHookRoot, gNativBridge } from "../utils/utils";
 
 export const listModules = () => {
     Java.perform(function(){
@@ -75,7 +75,7 @@ function loadArmModuleFromAndroid(path:string){
             hooker.targetFuncRetType = "bool";
             hooker.targetFuncParameterType = ["pointer", "pointer", "pointer", "pointer", "pointer"];
         
-            gHookRoot.pushBack(LoadNativeLibraryStr, hooker);
+            gHookRoot.pushBack(hooker);
         }
 
         let arg0 = env_;
@@ -105,7 +105,7 @@ function loadArmModuleFromJVM(path:string){
             hooker.targetFuncRetType = "pointer";
             hooker.targetFuncParameterType = ["pointer", "pointer", "pointer", "pointer"];
         
-            gHookRoot.pushBack(jvm_NativeLoad, hooker);
+            gHookRoot.pushBack(hooker);
         }
         // let arg0 = env_;
         // let arg1 = Java.vm.getEnv().newStringUtf(path);

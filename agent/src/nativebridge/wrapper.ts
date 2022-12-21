@@ -1,6 +1,6 @@
 import { Hook } from "../hooker/hook";
 import { HookManager } from "../hooker/HookManager";
-import { retValueToPointer } from "../utils";
+import { retValueToPointer } from "../utils/utils";
 
 interface BridgeType{
     symName:string;
@@ -25,7 +25,7 @@ export class NativeBridgeWrapper{
     ];
 
     constructor(){
-        this.hookRoot_ = new HookManager();
+        this.hookRoot_ = HookManager.getInstance();
         this._initFuncations();
     }
 
@@ -65,7 +65,7 @@ export class NativeBridgeWrapper{
                 element.retType,
                 element.paramType
             );
-            if(hooker != undefined){ this.hookRoot_.pushBack(element.symName, hooker);}
+            if(hooker != undefined){ this.hookRoot_.pushBack(hooker);}
             else{ console.warn('error! _init funcation => ' + element.symName);}
         });
     }
@@ -80,7 +80,7 @@ export class NativeBridgeWrapper{
         hooker.targetFuncRetType = retType;
         hooker.targetFuncParameterType = paramType;
     
-        this.hookRoot_.pushBack(sym, hooker);
+        this.hookRoot_.pushBack(hooker);
     }
 
 } 

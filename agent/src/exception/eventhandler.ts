@@ -1,6 +1,6 @@
 import { assert } from "console";
 import { Arm32ExceptionContext } from "./exceptions"
-import { gNativBridge } from "./utils";
+import { gNativBridge } from "../utils/utils";
 
 class EventHandler{
     private handle_: NativePointer | null = null;

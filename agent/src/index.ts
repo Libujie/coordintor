@@ -1,9 +1,9 @@
-import { breakPoint } from "./breakpoint";
-import { hexDump } from "./hexdump"
-import { listModules, loadArmModule } from "./module";
-import { registry_exception } from "./exceptions";
+import { breakPoint } from "./breakpoint/breakpoint";
+import { hexDump } from "./utils/hexdump"
+import { listModules, loadArmModule } from "./rpc/module";
+import { registry_exception } from "./exception/exceptions";
 import { Hook } from "./hooker/hook";
-import { enumClassLoader, printJavaStack, printSoStack } from "./utils";
+import { enumClassLoader, printJavaStack, printSoStack } from "./utils/utils";
 
 export var env_:NativePointer;
 export var path_:NativePointer;

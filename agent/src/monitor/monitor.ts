@@ -41,7 +41,7 @@ function Watchdog(func_name: string, libname?:string|null,
         APIMonitor(func_name, libname, {
             onEnter:function(args){
                 preArgs.forEach(element => {
-                    console.log("[+] "+ func_name +" => " + args[])
+                    // console.log("[+] "+ func_name +" => " + args[])
                 });
             }
         });
