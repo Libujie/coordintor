@@ -9,21 +9,24 @@
  * Copyright (c) 2022 by BujJieLi chengjie.li1@pacteraedge.com, All Rights Reserved. 
  */
 import { Hook } from "../hook";
+import { HookManager } from "../HookManager";
 
 function APIMonitor(name: string, libname?: string|null, callBacks?: InvocationListenerCallbacks|null ) {
     let hooker = new Hook(libname, name);
+    HookManager.getInstance().add(hooker);
     if (callBacks !== undefined && callBacks !== null) {
-        hooker.hook(callBacks);
-        return null;
+        hooker.callBack = callBacks;
+    }else{
+        hooker.callBack = ({
+            onEnter: function () {
+                console.log('[+] ' + name + ' start');
+            },
+            onLeave: function () {
+                console.log('[+] ' + name + ' end');
+            }
+        });
     }
-    return hooker.hook({
-        onEnter: function () {
-            console.log('[+] ' + name + ' start');
-        },
-        onLeave: function () {
-            console.log('[+] ' + name + ' end');
-        }
-    });
+    return hooker.hook();
 }
 
 function Watchdog(func_name: string, libname?:string|null, 

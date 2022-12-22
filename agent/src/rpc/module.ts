@@ -55,7 +55,7 @@ let findSymbolAndInvoke = (handle:any , symName:string) => {
             if(func !== null){
                 console.log('JNI_OnLoad addr:' + ptr(func.toLocaleString()));
                 let jni_OnLoad = new NativeFunction(ptr(func.toLocaleString()), "int", ["pointer", "int"]);
-                jni_OnLoad(env_, 0);
+                // jni_OnLoad(env_, 0);
             }else{
                 console.log('JNI_OnLoad not found!');
             }
@@ -68,14 +68,14 @@ let findSymbolAndInvoke = (handle:any , symName:string) => {
 function loadArmModuleFromAndroid(path:string){
     Java.perform(function(){
         let LoadNativeLibraryStr = '_ZN3art9JavaVMExt17LoadNativeLibraryEP7_JNIEnvRKNSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEP8_jobjectP7_jclassPS9_';
-        let hooker = gHookRoot.getValue(LoadNativeLibraryStr);
+        let hooker = gHookRoot.get(LoadNativeLibraryStr);
         if(hooker === null){
             hooker = new Hook('libart.so', LoadNativeLibraryStr);
         
             hooker.targetFuncRetType = "bool";
             hooker.targetFuncParameterType = ["pointer", "pointer", "pointer", "pointer", "pointer"];
         
-            gHookRoot.pushBack(hooker);
+            gHookRoot.add(hooker);
         }
 
         let arg0 = env_;
@@ -98,14 +98,14 @@ function loadArmModuleFromAndroid(path:string){
 function loadArmModuleFromJVM(path:string){
     Java.perform(function(){
         let jvm_NativeLoad = 'JVM_NativeLoad';
-        let hooker = gHookRoot.getValue(jvm_NativeLoad);
+        let hooker = gHookRoot.get(jvm_NativeLoad);
         if(hooker === null){
             hooker = new Hook('libopenjdkjvm.so', jvm_NativeLoad);
 
             hooker.targetFuncRetType = "pointer";
             hooker.targetFuncParameterType = ["pointer", "pointer", "pointer", "pointer"];
         
-            gHookRoot.pushBack(hooker);
+            gHookRoot.add(hooker);
         }
         // let arg0 = env_;
         // let arg1 = Java.vm.getEnv().newStringUtf(path);

@@ -22,16 +22,18 @@ export class Hook {
     private _hookTargetName: string | null = null;
     private _hookTargetAddr: number | null = null;
     private _hookTargetModuleName: string | null = null;
+    private _hookCallBack: InvocationListenerCallbacks | null = null;
     private _hookStatus: HookState = HookState.HK_DISABLE;
 
     private _hookTargetFuncRetType: NativeType | null = null;
     private _hookTargetFuncParamterTyep: NativeType[] | null = null;
-    private _invocationListener: InvocationListener | null = null; 
+    private _invocationListener: InvocationListener | null = null;
 
     constructor(
         moduleName: string | null = null,
         name: string | null = null,
-        addr: number | null = null
+        addr: number | null = null,
+        callback: InvocationListenerCallbacks | null = null
     ) {
         this._hookTargetModuleName = moduleName;
 
@@ -43,23 +45,26 @@ export class Hook {
         } catch (error) {
             throw new Error("Not found target func => " + name);
         }
+        this._hookCallBack = callback;
     }
 
-    set hookName(name: string) { this._hookTargetName = name; }
-    get hookName() { return this._hookTargetName!; }
 
-    set hookAddr(addr: number) { this._hookTargetAddr = addr; }
-    get hookAddr() { return this._hookTargetAddr!; }
+    set funcName(name: string) { this._hookTargetName = name; }
+    get funcName() { return this._hookTargetName!; }
 
-    set hookModuleName(moduleName: string) { this._hookTargetModuleName = moduleName; }
-    get hookModuleName() { return this._hookTargetModuleName?this._hookTargetModuleName:"Null" ; }
+    set funcAddr(addr: number) { this._hookTargetAddr = addr; }
+    get funcAddr() { return this._hookTargetAddr!; }
+
+    set moduleName(moduleName: string) { this._hookTargetModuleName = moduleName; }
+    get moduleName() { return this._hookTargetModuleName ? this._hookTargetModuleName : "Null"; }
 
     set targetFuncRetType(retType: NativeType) { this._hookTargetFuncRetType = retType; }
     set targetFuncParameterType(parameterType: NativeType[]) { this._hookTargetFuncParamterTyep = parameterType; }
+    set callBack(callback: InvocationListenerCallbacks) { this._hookCallBack = callback; }
 
-    get hookStatus() { return this._hookStatus; }
+    get status() { return this._hookStatus; }
 
-    public hook(callBacks: InvocationListenerCallbacks) {
+    private _hook(callBack: InvocationListenerCallbacks) {
         if (this._hookTargetName !== null) {
             let nativeFuncAddr = Module.findExportByName(this._hookTargetModuleName, this._hookTargetName);
             if (nativeFuncAddr === null) {
@@ -71,15 +76,22 @@ export class Hook {
                     return;
                 }
             } else {
-                this._invocationListener = Interceptor.attach(nativeFuncAddr, callBacks);
+                this._hookCallBack = callBack;
+                this._invocationListener = Interceptor.attach(nativeFuncAddr, callBack);
                 this._hookStatus = HookState.HK_ATTACHED;
+                Interceptor.flush();
                 console.log(this._hookTargetName + ' is hooked!');
-                return;
+                return this._invocationListener;
             }
         } else {
             console.warn("hookTargetName must be set!");
             return;
         }
+    }
+
+    public hook() {
+        if (this._hookCallBack) return this._hook(this._hookCallBack);
+        else console.warn("CallBack is undefined!");
     }
 
     public invoke(...args: NativeArgumentValue[]) {
@@ -123,6 +135,7 @@ export class Hook {
                 }
             } else {
                 Interceptor.replace(nativeFuncAddr, callBacks);
+                Interceptor.flush();
                 this._hookStatus = HookState.HK_REPLACED;
                 console.log(this._hookTargetName + ' is replaced!');
                 return;
@@ -134,8 +147,8 @@ export class Hook {
     }
 
     public detach() {
-        if(this._invocationListener){ 
-            this._invocationListener.detach() 
+        if (this._invocationListener) {
+            this._invocationListener.detach()
             this._hookStatus = HookState.HK_DISABLE;
         }
     }

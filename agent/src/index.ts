@@ -4,6 +4,8 @@ import { listModules, loadArmModule } from "./rpc/module";
 import { registry_exception } from "./exception/exceptions";
 import { Hook } from "./hooker/hook";
 import { enumClassLoader, printJavaStack, printSoStack } from "./utils/utils";
+import { HookManager } from "./hooker/HookManager";
+import { NativeBridgeWrapper } from "./nativebridge/wrapper";
 
 export var env_:NativePointer;
 export var path_:NativePointer;
@@ -13,9 +15,9 @@ export var errorMsg_:NativePointer;
 
 let main =  function(){
     Java.perform(function(){
+        let hooker = HookManager.getInstance();
         // registry_exception();
-        let hook = new Hook('libnativebridge.so', 'NativeBridgeLoadLibraryExt');
-        hook.hook({
+        hooker.newHook('libnativebridge.so', 'NativeBridgeLoadLibraryExt',null,{
             onEnter: function(args){
                 console.log("NativeBridgeLoadLibraryExt => arg[0]: "+ args[0].readCString());
                 console.log("NativeBridgeLoadLibraryExt => arg[1]: "+ args[1]);
@@ -24,8 +26,7 @@ let main =  function(){
             },
         });
 
-        let hook2 = new Hook('libnativebridge.so', 'NativeBridgeGetTrampoline');
-        hook2.hook({
+        hooker.newHook('libnativebridge.so', 'NativeBridgeGetTrampoline', null,{
             onEnter:function(args){
                 console.log("NativeBridgeGetTrampoline => arg[0]: "+ args[0].readCString());
                 console.log("NativeBridgeGetTrampoline => arg[1]: "+ args[1].readCString());
@@ -35,24 +36,24 @@ let main =  function(){
             }
         });
 
-        let hook3 = new Hook('libart.so', '_ZN3art9JavaVMExt17LoadNativeLibraryEP7_JNIEnvRKNSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEP8_jobjectP7_jclassPS9_');
-        hook3.hook({
-            onEnter:function(args){
-                // env_ = args[0];
-                // path_ = args[1];
-                // classLoader_ = args[2];
-                // caller_ = args[3];
-                // errorMsg_ = args[4];
-                console.log("LoadNativeLibrary Env=> : "+ args[0]);
-                console.log("LoadNativeLibrary Path=> : "+ args[1]);
-                console.log("LoadNativeLibrary ClassLoader => : "+ args[2]);
-                console.log("LoadNativeLibrary Caller => : "+ args[3]);
-                console.log("LoadNativeLibrary ErrorMsg=> : "+ args[4]);
+        hooker.newHook('libart.so', '_ZN3art9JavaVMExt17LoadNativeLibraryEP7_JNIEnvRKNSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEP8_jobjectP7_jclassPS9_',null,
+            {
+                onEnter:function(args){
+                    // env_ = args[0];
+                    // path_ = args[1];
+                    // classLoader_ = args[2];
+                    // caller_ = args[3];
+                    // errorMsg_ = args[4];
+                    console.log("LoadNativeLibrary Env=> : "+ args[0]);
+                    console.log("LoadNativeLibrary Path=> : "+ args[1]);
+                    console.log("LoadNativeLibrary ClassLoader => : "+ args[2]);
+                    console.log("LoadNativeLibrary Caller => : "+ args[3]);
+                    console.log("LoadNativeLibrary ErrorMsg=> : "+ args[4]);
+                }
             }
-        });
+        );
 
-        let hook4 = new Hook('libopenjdkjvm.so', 'JVM_NativeLoad');
-        hook4.hook({
+        hooker.newHook('libopenjdkjvm.so', 'JVM_NativeLoad',null, {
             onEnter:function(args){
                 env_ = args[0];
                 path_ = args[1];
@@ -69,6 +70,11 @@ let main =  function(){
                 // printJavaStack();
             }
         });
+
+
+        let itf = new NativeBridgeWrapper();
+        console.log(itf.version);
+        
     });
 }
 
