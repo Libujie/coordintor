@@ -1,3 +1,13 @@
+/*
+ * @Author: BujJieLi chengjie.li1@pacteraedge.com
+ * @Date: 2022-12-26 09:31:08
+ * @LastEditors: BujJieLi chengjie.li1@pacteraedge.com
+ * @LastEditTime: 2022-12-26 19:10:52
+ * @FilePath: /coordintor/agent/src/index.ts
+ * @Description: 
+ * 
+ * Copyright (c) 2022 by BujJieLi chengjie.li1@pacteraedge.com, All Rights Reserved. 
+ */
 import { breakPoint } from "./breakpoint/breakpoint";
 import { hexDump } from "./utils/hexdump"
 import { listModules, loadArmModule } from "./rpc/module";
